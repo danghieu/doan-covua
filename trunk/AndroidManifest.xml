@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+      package="com.doan.covua"
+      android:versionCode="1"
+      android:versionName="1.0">
+
+
+    <application android:debuggable="true" android:icon="@drawable/icon" android:label="@string/app_name" >
+        <activity android:name=".states.Logo"
+                  android:label="@string/app_name"
+                  android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        
+        <activity android:name=".states.SoundQuestion">
+        </activity>
+        <activity android:name=".states.SplashScreen">
+        </activity>
+        <activity android:name=".states.MainMenu">
+        </activity>
+        
+    </application>
+</manifest>
