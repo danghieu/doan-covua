@@ -2,9 +2,35 @@
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent"
-	android:layout_height="fill_parent">
-	<TextView
-	       android:text="main menu"
-	       android:layout_width="wrap_content"
-	       android:layout_height="wrap_content" />
+	android:layout_height="fill_parent"
+	android:orientation="vertical"
+	android:gravity="center_vertical|center_horizontal"
+	android:background="@drawable/splash_background">
+	
+	<Button
+	    android:id="@+id/btn_newgame"
+	    android:text="@string/mn_newgame"
+	    android:background="@drawable/button_mainmenu"
+	    style="@style/mainmenu_style"/>
+	<Button
+         android:id="@+id/btn_option"
+         android:text="@string/mn_option"
+         android:background="@drawable/button_mainmenu"
+         style="@style/mainmenu_style"/>
+     <Button
+         android:id="@+id/btn_help"
+         android:text="@string/mn_help"
+         android:background="@drawable/button_mainmenu"
+         style="@style/mainmenu_style"/>
+     <Button
+         android:id="@+id/btn_about"
+         android:text="@string/mn_about"
+         android:background="@drawable/button_mainmenu"
+         style="@style/mainmenu_style"/>
+     <Button
+         android:id="@+id/btn_exit"
+         android:text="@string/mn_exit"
+         android:background="@drawable/button_mainmenu"
+         style="@style/mainmenu_style"/>
+	    
 </LinearLayout>

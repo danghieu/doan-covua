@@ -2,4 +2,11 @@
 <resources>
     <string name="app_name">CoVua</string>
     <string name="splash_text">Touch on screen to continue</string>
+    <string name="mn_newgame">NEW GAME</string>
+    <string name="mn_option">OPTION</string>
+    <string name="mn_help">HELP</string>
+    <string name="mn_about">ABOUT</string>
+    <string name="mn_exit">EXIT</string>
+    <string name="sq_yes">YES</string>
+    <string name="sq_no">NO</string>
 </resources>
