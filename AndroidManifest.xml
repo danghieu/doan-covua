@@ -21,6 +21,14 @@
         </activity>
         <activity android:name=".states.MainMenu">
         </activity>
-        
+        <activity android:name=".states.About"
+				  android:label="@string/about_title"
+				  android:theme="@android:style/Theme.Dialog">
+		</activity>
+		<activity android:name=".states.GameMode"
+				  android:label="@string/mode_title"/>
+				  
+		<activity android:name=".states.InGame"
+				  android:label="@string/game_title"/>
     </application>
 </manifest>
