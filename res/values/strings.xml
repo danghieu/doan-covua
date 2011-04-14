@@ -9,4 +9,22 @@
     <string name="mn_exit">EXIT</string>
     <string name="sq_yes">YES</string>
     <string name="sq_no">NO</string>
+    <string name="about_title">About</string>
+	<string name="about_text">\n
+		CHESS MASTER
+		@Chess master - 2011
+		Programmers
+		
+		Dinh Ngoc Trung
+		Le Thi Phuong
+		
+	</string>
+	<string name="mode_title">Mode</string>
+	<string name="mode_cwh">Human - Computer</string>
+	<string name="mode_hwh">Human - Human</string>
+	<string name="difficulty_title">Difficulty</string>
+	<string name="easy_label">Easy</string>
+	<string name="medium_label">Medium</string>
+	<string name="hard_label">Hard</string>
+	<string name="game_title">Chess</string>
 </resources>
