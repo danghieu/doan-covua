@@ -25,7 +25,7 @@
 				  android:label="@string/about_title"
 				  android:theme="@android:style/Theme.Dialog">
 		</activity>
-		<activity android:name=".states.GameMode"
+		<activity android:name=".states.ChooseGameMode"
 				  android:label="@string/mode_title"/>
 				  
 		<activity android:name=".states.InGame"
