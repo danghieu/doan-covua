@@ -5,7 +5,6 @@ import com.doan.covua.gamelogic.Position;;
 public class ChessController {
 
 	PgnToken.PgnTokenReceiver gameTextListener;
-	Game game;
 	GUIInterface gui;
 	GameTree tree;
 	
@@ -20,7 +19,6 @@ public class ChessController {
 		updateUI();
 	}
 	private final void updateUI(){
-		
 		gui.setPosition(currPos(), null, null);
 	}
 	/** get current position */
