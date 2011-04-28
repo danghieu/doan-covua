@@ -35,9 +35,6 @@ public class InGame extends Activity implements GUIInterface{
 		ctrl = new ChessController(this,null);
 		ctrl.newGame();
 		ctrl.startGame();
-		//chessview = new ChessView(this);
-		//setContentView(chessview);
-		//chessview.requestFocus();
 	}
 	
 	public final void unitUI(boolean initTitle){
@@ -46,7 +43,6 @@ public class InGame extends Activity implements GUIInterface{
 		setContentView(R.layout.main);
 		
 		cb = (ChessBoard)findViewById(R.id.chessboard);
-		
 		cb.setFocusable(true);
 		cb.requestFocus();
 		cb.setClickable(true);
