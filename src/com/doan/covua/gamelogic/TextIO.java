@@ -1,5 +1,9 @@
 package com.doan.covua.gamelogic;
 
+import java.util.ArrayList;
+import java.util.List;
+
+
 import android.util.Log;
 
 public class TextIO {
@@ -162,5 +166,152 @@ public class TextIO {
     	}
     	castleMask &= validCastle;
     	pos.setCastleMask(castleMask);
+    }
+  
+    /** Remove pseudo-legal EP square if it is not legal, ie would leave king in check. */
+    public static final void fixupEPSquare(Position pos) {
+        int epSquare = pos.getEpSquare();
+        if (epSquare >= 0) {
+            ArrayList<Move> moves = Move.instanceMove.pseudoLegalMoves(pos);
+            moves = Move.removeIllegal(pos, moves);
+            boolean epValid = false;
+            for (Move m : moves) {
+                if (m.to == epSquare) {
+                    if (pos.getPiece(m.from) == (pos.whiteMove ? Piece.WPAWN : Piece.BPAWN)) {
+                        epValid = true;
+                        break;
+                    }
+                }
+            }
+            if (!epValid) {
+                pos.setEpSquare(-1);
+            }
+        }
+    }
+    
+    /*** for do move *****/
+    /**
+     * Convert a chess move to human readable form.
+     * @param pos      The chess position.
+     * @param move     The executed move.
+     * @param longForm If true, use long notation, eg Ng1-f3.
+     *                 Otherwise, use short notation, eg Nf3
+     */
+    public static final String moveToString(Position pos, Move move, boolean longForm) {
+        ArrayList<Move> moves = Move.instanceMove.pseudoLegalMoves(pos);
+        moves = Move.removeIllegal(pos, moves);
+        return moveToString(pos, move, longForm, moves);
+    }
+    private static final String moveToString(Position pos, Move move, boolean longForm, 
+    										 List<Move> moves) {
+    	if (move.equals(new Move(0, 0, 0)))
+    		return "--";
+        StringBuilder ret = new StringBuilder();
+        int wKingOrigPos = Position.getSquare(4, 0);
+        int bKingOrigPos = Position.getSquare(4, 7);
+        if (move.from == wKingOrigPos && pos.getPiece(wKingOrigPos) == Piece.WKING) {
+            // Check white castle
+            if (move.to == Position.getSquare(6, 0)) {
+                    ret.append("O-O");
+            } else if (move.to == Position.getSquare(2, 0)) {
+                ret.append("O-O-O");
+            }
+        } else if (move.from == bKingOrigPos && pos.getPiece(bKingOrigPos) == Piece.BKING) {
+            // Check white castle
+            if (move.to == Position.getSquare(6, 7)) {
+                ret.append("O-O");
+            } else if (move.to == Position.getSquare(2, 7)) {
+                ret.append("O-O-O");
+            }
+        }
+        if (ret.length() == 0) {
+            int p = pos.getPiece(move.from);
+            ret.append(pieceToChar(p));
+            int x1 = Position.getX(move.from);
+            int y1 = Position.getY(move.from);
+            int x2 = Position.getX(move.to);
+            int y2 = Position.getY(move.to);
+            if (longForm) {
+                ret.append((char)(x1 + 'a'));
+                ret.append((char) (y1 + '1'));
+                ret.append(isCapture(pos, move) ? 'x' : '-');
+            } else {
+                if (p == (pos.whiteMove ? Piece.WPAWN : Piece.BPAWN)) {
+                    if (isCapture(pos, move)) {
+                        ret.append((char) (x1 + 'a'));
+                    }
+                } else {
+                    int numSameTarget = 0;
+                    int numSameFile = 0;
+                    int numSameRow = 0;
+                    int mSize = moves.size();
+                    for (int mi = 0; mi < mSize; mi++) {
+                    	Move m = moves.get(mi);
+                        if ((pos.getPiece(m.from) == p) && (m.to == move.to)) {
+                            numSameTarget++;
+                            if (Position.getX(m.from) == x1)
+                                numSameFile++;
+                            if (Position.getY(m.from) == y1)
+                                numSameRow++;
+                        }
+                    }
+                    if (numSameTarget < 2) {
+                        // No file/row info needed
+                    } else if (numSameFile < 2) {
+                        ret.append((char) (x1 + 'a'));   // Only file info needed
+                    } else if (numSameRow < 2) {
+                        ret.append((char) (y1 + '1'));   // Only row info needed
+                    } else {
+                        ret.append((char) (x1 + 'a'));   // File and row info needed
+                        ret.append((char) (y1 + '1'));
+                    }
+                }
+                if (isCapture(pos, move)) {
+                    ret.append('x');
+                }
+            }
+            ret.append((char) (x2 + 'a'));
+            ret.append((char) (y2 + '1'));
+            if (move.promoteTo != Piece.EMPTY)
+                ret.append(pieceToChar(move.promoteTo));
+        }
+        UndoInfo ui = new UndoInfo();
+        pos.makeMove(move, ui);
+        boolean givesCheck = Move.inCheck(pos);
+        if (givesCheck) {
+            ArrayList<Move> nextMoves = Move.instanceMove.pseudoLegalMoves(pos);
+            nextMoves = Move.removeIllegal(pos, nextMoves);
+            if (nextMoves.size() == 0) {
+                ret.append('#');
+            } else {
+                ret.append('+');
+            }
+        }
+        pos.unMakeMove(move, ui);
+
+        return ret.toString();
+    }
+
+    private static final boolean isCapture(Position pos, Move move) {
+        if (pos.getPiece(move.to) == Piece.EMPTY) {
+            int p = pos.getPiece(move.from);
+            if ((p == (pos.whiteMove ? Piece.WPAWN : Piece.BPAWN)) && (move.to == pos.getEpSquare())) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return true;
+        }
+    }
+    private final static String pieceToChar(int p) {
+        switch (p) {
+            case Piece.WQUEEN:  case Piece.BQUEEN:  return "Q";
+            case Piece.WROOK:   case Piece.BROOK:   return "R";
+            case Piece.WBISHOP: case Piece.BBISHOP: return "B";
+            case Piece.WKNIGHT: case Piece.BKNIGHT: return "N";
+            case Piece.WKING:   case Piece.BKING:   return "K";
+        }
+        return "";
     }
 }

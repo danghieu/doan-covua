@@ -12,7 +12,7 @@ public interface GUIInterface {
 	public void setPosition(Position pos, String variantInfo, List<Move> variantMoves);
 
 	/** Mark square i as selected. Set to -1 to clear selection. */
-	//public void setSelection(int sq);
+	public void setSelection(int sq);
 
 	/** Set the status text. */
 	//public void setStatusString(String str);
@@ -39,7 +39,7 @@ public interface GUIInterface {
 	//public void setRemainingTime(long wTime, long bTime, long nextUpdate);
 
 	/** Report a move made that is a candidate for GUI animation. */
-	//public void setAnimMove(Position sourcePos, Move move, boolean forward);
+	public void setAnimMove(Position sourcePos, Move move, boolean forward);
 
 	/** Return true if positive analysis scores means good for white. */
 	//public boolean whiteBasedScores();
