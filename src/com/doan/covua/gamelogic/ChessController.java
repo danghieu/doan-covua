@@ -89,9 +89,9 @@ public class ChessController {
     final private boolean doMove(Move move) {
     	//generate the moves 
     	
-    	/*Position pos = currPos();
-    	ArrayList<Move> moves = new Move().pseudoLegalMoves(pos);
-        moves = Move.removeIllegal(pos, moves);
+    	Position pos = currPos();
+    	ArrayList<Move> moves = new MoveGen().pseudoLegalMoves(pos);
+        moves = MoveGen.removeIllegal(pos, moves);
         int promoteTo = move.promoteTo;
         for (Move m : moves) {
             if ((m.from == move.from) && (m.to == move.to)) {
@@ -111,11 +111,11 @@ public class ChessController {
                     return true;
                 }
             }
-        }*/
+        }
     	
-        resetPos(move);
-        return true;
-        //return false;
+       // resetPos(move);
+        //return true;
+        return false;
     }
     /** reset squares position */
     /** temp method */
