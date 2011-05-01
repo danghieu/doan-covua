@@ -172,8 +172,8 @@ public class TextIO {
     public static final void fixupEPSquare(Position pos) {
         int epSquare = pos.getEpSquare();
         if (epSquare >= 0) {
-            ArrayList<Move> moves = Move.instanceMove.pseudoLegalMoves(pos);
-            moves = Move.removeIllegal(pos, moves);
+            ArrayList<Move> moves = MoveGen.instance.pseudoLegalMoves(pos);
+            moves = MoveGen.removeIllegal(pos, moves);
             boolean epValid = false;
             for (Move m : moves) {
                 if (m.to == epSquare) {
@@ -198,8 +198,8 @@ public class TextIO {
      *                 Otherwise, use short notation, eg Nf3
      */
     public static final String moveToString(Position pos, Move move, boolean longForm) {
-        ArrayList<Move> moves = Move.instanceMove.pseudoLegalMoves(pos);
-        moves = Move.removeIllegal(pos, moves);
+        ArrayList<Move> moves = MoveGen.instance.pseudoLegalMoves(pos);
+        moves = MoveGen.removeIllegal(pos, moves);
         return moveToString(pos, move, longForm, moves);
     }
     private static final String moveToString(Position pos, Move move, boolean longForm, 
@@ -277,10 +277,10 @@ public class TextIO {
         }
         UndoInfo ui = new UndoInfo();
         pos.makeMove(move, ui);
-        boolean givesCheck = Move.inCheck(pos);
+        boolean givesCheck = MoveGen.inCheck(pos);
         if (givesCheck) {
-            ArrayList<Move> nextMoves = Move.instanceMove.pseudoLegalMoves(pos);
-            nextMoves = Move.removeIllegal(pos, nextMoves);
+            ArrayList<Move> nextMoves = MoveGen.instance.pseudoLegalMoves(pos);
+            nextMoves = MoveGen.removeIllegal(pos, nextMoves);
             if (nextMoves.size() == 0) {
                 ret.append('#');
             } else {

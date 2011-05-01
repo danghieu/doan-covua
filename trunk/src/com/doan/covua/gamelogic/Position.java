@@ -1,5 +1,6 @@
 package com.doan.covua.gamelogic;
 
+
 import android.util.Log;
 
 public class Position {
@@ -179,6 +180,20 @@ public class Position {
         if (!wtm) {
             fullMoveCounter++;
         }
+        
+        // Handle castling
+        //do something....
+        //end
+        if (!nullMove) {
+        	int rook = wtm ? Piece.WROOK : Piece.BROOK;
+        	if (p == rook) {
+        		removeCastleRights(move.from);
+        	}
+        	int oRook = wtm ? Piece.BROOK : Piece.WROOK;
+        	if (capP == oRook) {
+        		removeCastleRights(move.to);
+        	}
+        }
         // Handle en passant and epSquare
         int prevEpSquare = epSquare;
         setEpSquare(-1);
@@ -230,7 +245,7 @@ public class Position {
          if (!wtm) {
              fullMoveCounter--;
          }
-         
+         /*
          // Handle castling
          int king = wtm ? Piece.WKING : Piece.BKING;
          int k0 = move.from;
@@ -243,7 +258,7 @@ public class Position {
                  setPiece(k0 - 1, Piece.EMPTY);
              }
          }
-         
+         */
       // Handle en passant
          if (move.to == epSquare) {
          	if (p == Piece.WPAWN) {
@@ -253,5 +268,18 @@ public class Position {
          	}
          }
     }
+    
+    private final void removeCastleRights(int square) {
+        if (square == Position.getSquare(0, 0)) {
+            setCastleMask(castleMask & ~(1 << Position.A1_CASTLE));
+        } else if (square == Position.getSquare(7, 0)) {
+            setCastleMask(castleMask & ~(1 << Position.H1_CASTLE));
+        } else if (square == Position.getSquare(0, 7)) {
+            setCastleMask(castleMask & ~(1 << Position.A8_CASTLE));
+        } else if (square == Position.getSquare(7, 7)) {
+            setCastleMask(castleMask & ~(1 << Position.H8_CASTLE));
+        }
+    }
+
     
 }
