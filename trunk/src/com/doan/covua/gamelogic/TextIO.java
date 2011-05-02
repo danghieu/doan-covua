@@ -2,8 +2,6 @@ package com.doan.covua.gamelogic;
 
 import java.util.ArrayList;
 import java.util.List;
-
-
 import android.util.Log;
 
 public class TextIO {
@@ -313,5 +311,244 @@ public class TextIO {
             case Piece.WKING:   case Piece.BKING:   return "K";
         }
         return "";
+    }
+    
+    /**
+     * phuong...
+     *  update for do move 
+     */
+    
+    private final static int charToPiece(boolean white, char c) {
+    	switch (c) {
+    	case 'Q': case 'q': return white ? Piece.WQUEEN  : Piece.BQUEEN;
+    	case 'R': case 'r': return white ? Piece.WROOK   : Piece.BROOK;
+    	case 'B':           return white ? Piece.WBISHOP : Piece.BBISHOP;
+    	case 'N': case 'n': return white ? Piece.WKNIGHT : Piece.BKNIGHT;
+    	case 'K': case 'k': return white ? Piece.WKING   : Piece.BKING;
+    	case 'P': case 'p': return white ? Piece.WPAWN   : Piece.BPAWN;
+    	}
+    	return -1;
+    }
+    
+    private final static class MoveInfo {
+		int piece;					// -1 for unspecified
+		int fromX, fromY, toX, toY; // -1 for unspecified
+		int promPiece;				// -1 for unspecified
+		MoveInfo() { piece = fromX = fromY = toX = toY = promPiece = -1; }
+	}
+    
+    /**
+     * Convert a chess move string to a Move object.
+     * The string may specify any combination of piece/source/target/promotion
+     * information as long as it matches exactly one valid move.
+     */
+    public static final Move stringToMove(Position pos, String strMove) {
+    	if (strMove.equals("--"))
+    		return new Move(0, 0, 0);
+
+    	strMove = strMove.replaceAll("=", "");
+    	strMove = strMove.replaceAll("\\+", "");
+    	strMove = strMove.replaceAll("#", "");
+        boolean wtm = pos.whiteMove;
+
+    	MoveInfo info = new MoveInfo();
+    	boolean capture = false;
+    	if (strMove.equals("O-O") || strMove.equals("0-0") || strMove.equals("o-o")) {
+    		info.piece = wtm ? Piece.WKING : Piece.BKING;
+    		info.fromX = 4;
+    		info.toX = 6;
+    		info.fromY = info.toY = wtm ? 0 : 7;
+    		info.promPiece= Piece.EMPTY;
+    	} else if (strMove.equals("O-O-O") || strMove.equals("0-0-0") || strMove.equals("o-o-o")) {
+    		info.piece = wtm ? Piece.WKING : Piece.BKING;
+    		info.fromX = 4;
+    		info.toX = 2;
+    		info.fromY = info.toY = wtm ? 0 : 7;
+    		info.promPiece= Piece.EMPTY;
+    	} else {
+    		boolean atToSq = false;
+    		for (int i = 0; i < strMove.length(); i++) {
+    			char c = strMove.charAt(i);
+    			if (i == 0) {
+    				int piece = charToPiece(wtm, c);
+    				if (piece >= 0) {
+    					info.piece = piece;
+    					continue;
+    				}
+    			}
+    			int tmpX = c - 'a';
+    			if ((tmpX >= 0) && (tmpX < 8)) {
+    				if (atToSq || (info.fromX >= 0))
+    					info.toX = tmpX;
+    				else
+    					info.fromX = tmpX;
+    			}
+    			int tmpY = c - '1';
+    			if ((tmpY >= 0) && (tmpY < 8)) {
+    				if (atToSq || (info.fromY >= 0))
+    					info.toY = tmpY;
+    				else
+    					info.fromY = tmpY;
+    			}
+    			if ((c == 'x') || (c == '-')) {
+    				atToSq = true;
+    				if (c == 'x')
+    					capture = true;
+    			}
+    			if (i == strMove.length() - 1) {
+    				int promPiece = charToPiece(wtm, c);
+    				if (promPiece >= 0) {
+    					info.promPiece = promPiece;
+    				}
+    			}
+    		}
+    		if ((info.fromX >= 0) && (info.toX < 0)) {
+    			info.toX = info.fromX;
+    			info.fromX = -1;
+    		}
+    		if ((info.fromY >= 0) && (info.toY < 0)) {
+    			info.toY = info.fromY;
+    			info.fromY = -1;
+    		}
+    		if (info.piece < 0) {
+    			boolean haveAll = (info.fromX >= 0) && (info.fromY >= 0) &&
+    							  (info.toX >= 0) && (info.toY >= 0);
+    			if (!haveAll)
+    				info.piece = wtm ? Piece.WPAWN : Piece.BPAWN;
+    		}
+    		if (info.promPiece < 0)
+    			info.promPiece = Piece.EMPTY;
+    	}
+
+        ArrayList<Move> moves = MoveGen.instance.pseudoLegalMoves(pos);
+        moves = MoveGen.removeIllegal(pos, moves);
+
+        ArrayList<Move> matches = new ArrayList<Move>(2);
+        for (int i = 0; i < moves.size(); i++) {
+        	Move m = moves.get(i);
+        	int p = pos.getPiece(m.from);
+        	boolean match = true;
+        	if ((info.piece >= 0) && (info.piece != p))
+        		match = false;
+        	if ((info.fromX >= 0) && (info.fromX != Position.getX(m.from)))
+        		match = false;
+        	if ((info.fromY >= 0) && (info.fromY != Position.getY(m.from)))
+        		match = false;
+        	if ((info.toX >= 0) && (info.toX != Position.getX(m.to)))
+        		match = false;
+        	if ((info.toY >= 0) && (info.toY != Position.getY(m.to)))
+        		match = false;
+        	if ((info.promPiece >= 0) && (info.promPiece != m.promoteTo))
+        		match = false;
+        	if (match) {
+        		matches.add(m);
+        	}
+        }
+        int nMatches = matches.size();
+        if (nMatches == 0)
+        	return null;
+        else if (nMatches == 1)
+        	return matches.get(0);
+        if (!capture)
+        	return null;
+        Move move = null;
+        for (int i = 0; i < matches.size(); i++) {
+        	Move m = matches.get(i);
+        	int capt = pos.getPiece(m.to);
+        	if (capt != Piece.EMPTY) {
+        		if (move == null)
+        			move = m;
+        		else
+        			return null;
+        	}
+        }
+        return move;
+    }
+    
+    /**
+     * Convert a string in UCI move format to a Move object.
+     * @return A move object, or null if move has invalid syntax
+     */
+    public static final Move UCIstringToMove (String move){
+    	Move m = null;
+        if ((move.length() < 4) || (move.length() > 5))
+            return m;
+        int fromSq = TextIO.getSquare(move.substring(0, 2));
+        int toSq   = TextIO.getSquare(move.substring(2, 4));
+        if ((fromSq < 0) || (toSq < 0)) {
+            return m;
+        }
+        char prom = ' ';
+        boolean white = true;
+        if(move.length() == 5){
+        	prom = move.charAt(4);
+        	if(Position.getY(toSq) == 7) {
+        		white = true;
+        	}
+        	else if (Position.getY(toSq) == 0) {
+        		white = false;
+        	} else{
+        		return m;
+        	}
+        }
+        int promoteTo;
+        switch(prom){
+	        case ' ':
+	            promoteTo = Piece.EMPTY;
+	            break;
+	        case 'q':
+	            promoteTo = white ? Piece.WQUEEN : Piece.BQUEEN;
+	            break;
+	        case 'r':
+	            promoteTo = white ? Piece.WROOK : Piece.BROOK;
+	            break;
+	        case 'b':
+	            promoteTo = white ? Piece.WBISHOP : Piece.BBISHOP;
+	            break;
+	        case 'n':
+	            promoteTo = white ? Piece.WKNIGHT : Piece.BKNIGHT;
+	            break;
+	        default:
+	        	return m;
+        }
+        m = new Move(fromSq, toSq, promoteTo);
+        return m;
+    }
+    /** Convert a move object to UCI string format. */
+    public static final String moveToUCIString(Move m) {
+        String ret = squareToString(m.from);
+        ret += squareToString(m.to);
+        switch (m.promoteTo) {
+            case Piece.WQUEEN:
+            case Piece.BQUEEN:
+                ret += "q";
+                break;
+            case Piece.WROOK:
+            case Piece.BROOK:
+                ret += "r";
+                break;
+            case Piece.WBISHOP:
+            case Piece.BBISHOP:
+                ret += "b";
+                break;
+            case Piece.WKNIGHT:
+            case Piece.BKNIGHT:
+                ret += "n";
+                break;
+            default:
+                break;
+        }
+        return ret;
+    }
+    /**
+     * Convert a square number to a string, such as "e4".
+     */
+    public static final String squareToString(int square) {
+        StringBuilder ret = new StringBuilder();
+        int x = Position.getX(square);
+        int y = Position.getY(square);
+        ret.append((char) (x + 'a'));
+        ret.append((char) (y + '1'));
+        return ret.toString();
     }
 }

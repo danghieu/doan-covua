@@ -128,7 +128,7 @@ public class ChessBoard extends View{
           
             canvas.drawRect(x0, y0, x0 + sqSize, y0 + sqSize, selectedSquarePaint);
         }
-       anim.draw(canvas);
+      // anim.draw(canvas);
 	}
 	protected int getXCrd(int x) { return x0 + sqSize * (flipped ? 7 - x : x); }
     protected int getYCrd(int y) { return y0 + sqSize * (flipped ? y : 7 - y); }

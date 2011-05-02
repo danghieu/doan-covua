@@ -72,7 +72,6 @@ public class InGame extends Activity implements GUIInterface{
             }
             private final void handleClick(MotionEvent e) {
             	if(ctrl.humansTurn()){
-            		Log.v("handle click","1111111");
             		int sq = cb.eventToSquare(e);
             		Move m = cb.mousePressed(sq);
             		if(m != null){
